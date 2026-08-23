@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jobmatcher"
+version = "0.1.0"
+description = "Job matching application based on CV, skills and job preferences"
+requires-python = ">=3.13"
+
+dependencies = [
+    "fastapi>=0.141.1",
+    "uvicorn>=0.52.1",
+    "sqlalchemy>=2.0.51",
+    "pymysql>=1.2.0",
+    "alembic>=1.19.1",
+    "pydantic>=2.13.4",
+    "pydantic[email]>=2.13.4",
+    "python-dotenv>=1.2.2",
+    "python-multipart>=0.0.32",
+    "pypdf>=6.15.0",
+    "pymupdf>=1.28.2",
+    "python-docx>=1.2.0",
+    "pwdlib[argon2]>=0.3.0",
+    "PyJWT>=2.13.0",
+    "requests>=2.34.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "httpx>=0.28.1",
+    "ruff>=0.12.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]

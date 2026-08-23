@@ -1,0 +1,8 @@
+from pydantic import BaseModel
+
+
+class UserRead(BaseModel):
+    id: int
+    email: str
+    name: str
+    experience_years: float
