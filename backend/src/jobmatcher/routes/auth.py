@@ -1,4 +1,5 @@
 from typing import Annotated
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -6,8 +7,11 @@ from fastapi import (
     status,
 )
 from sqlalchemy.orm import Session
+
 from jobmatcher.database.dependencies import get_db
 from jobmatcher.schemas.auth import (
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
     Token,
     UserCreate,
     UserLogin,
@@ -16,8 +20,14 @@ from jobmatcher.schemas.auth import (
 from jobmatcher.services.auth_service import (
     authenticate_user,
     create_access_token,
+    create_password_reset_token,
     create_user,
     get_user_by_email,
+    get_user_by_reset_token,
+    reset_user_password,
+)
+from jobmatcher.services.email_service import (
+    send_password_reset_email,
 )
 
 
@@ -47,7 +57,7 @@ def register(
     if existing_user is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered",
+            detail="Этот email уже зарегистрирован",
         )
 
     return create_user(
@@ -77,7 +87,7 @@ def login(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Неверный email или пароль",
         )
 
     token = create_access_token(
@@ -88,3 +98,72 @@ def login(
         access_token=token,
         token_type="bearer",
     )
+
+
+@router.post(
+    "/forgot-password",
+)
+def forgot_password(
+    data: ForgotPasswordRequest,
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+):
+    user = get_user_by_email(
+        db,
+        data.email,
+    )
+
+    if user is not None:
+        token = create_password_reset_token(
+            db,
+            user,
+        )
+
+        send_password_reset_email(
+            user.email,
+            token,
+        )
+
+    return {
+        "message": (
+            "Если аккаунт с таким email существует, "
+            "ссылка для восстановления пароля будет отправлена."
+        )
+    }
+
+
+@router.post(
+    "/reset-password",
+)
+def reset_password(
+    data: ResetPasswordRequest,
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+):
+    user = get_user_by_reset_token(
+        db,
+        data.token,
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Ссылка для восстановления пароля "
+                "недействительна или истекла"
+            ),
+        )
+
+    reset_user_password(
+        db,
+        user,
+        data.new_password,
+    )
+
+    return {
+        "message": "Пароль успешно изменён",
+    }

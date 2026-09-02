@@ -8,10 +8,10 @@ async function request(endpoint, options = {}) {
   };
 
   if (token) {
-    headers.Authorization = 'Bearer ${token}';
+    headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch('${API_URL}${endpoint}', {
+  const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
   });
@@ -28,12 +28,12 @@ async function request(endpoint, options = {}) {
     const detail =
       data?.detail ||
       data?.message ||
-      "Une erreur est survenue.";
+      "Произошла ошибка.";
 
     throw new Error(
       typeof detail === "string"
         ? detail
-        : "Une erreur est survenue."
+        : "Произошла ошибка."
     );
   }
 
@@ -62,6 +62,18 @@ export async function register(email, password) {
     body: JSON.stringify({
       email,
       password,
+    }),
+  });
+}
+
+export async function forgotPassword(email) {
+  return request("/auth/forgot-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
     }),
   });
 }

@@ -1,48 +1,36 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   BriefcaseBusiness,
-  LockKeyhole,
   Mail,
 } from "lucide-react";
-import { login } from "../services/api";
+import { forgotPassword } from "../services/api";
 
-function Login() {
-  const navigate = useNavigate();
-
+function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    setMessage("");
     setError("");
     setLoading(true);
 
     try {
-      const data = await login(email, password);
+      const data = await forgotPassword(email);
 
-      const token =
-        data?.access_token ||
-        data?.token;
-
-      if (!token) {
-        throw new Error(
-          "Сервер не вернул токен."
-        );
-      }
-
-      localStorage.setItem("token", token);
-
-      navigate("/dashboard");
+      setMessage(
+        data?.message ||
+          "Если аккаунт с таким адресом существует, ссылка для восстановления пароля будет отправлена."
+      );
     } catch (err) {
       setError(
         err.message ||
-          "Не удалось войти в систему."
+          "Не удалось отправить ссылку для восстановления пароля."
       );
     } finally {
       setLoading(false);
@@ -62,13 +50,20 @@ function Login() {
 
         <div className="auth-card">
           <div className="auth-header">
-            <h1>С возвращением!</h1>
+            <h1>Восстановление пароля</h1>
 
             <p>
-              Войдите в систему, чтобы просматривать вакансии
-              и рекомендации.
+              Введите адрес электронной почты, указанный
+              при регистрации. Мы отправим вам ссылку
+              для восстановления пароля.
             </p>
           </div>
+
+          {message && (
+            <div className="auth-success">
+              {message}
+            </div>
+          )}
 
           {error && (
             <div className="auth-error">
@@ -101,41 +96,14 @@ function Login() {
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password">
-                Пароль
-              </label>
-
-              <div className="input-wrapper">
-                <LockKeyhole size={18} />
-
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Введите пароль"
-                  value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="forgot-password">
-              <Link to="/forgot-password">
-                Забыли пароль?
-              </Link>
-            </div>
-
             <button
               type="submit"
               className="auth-submit-button"
               disabled={loading}
             >
               {loading
-                ? "Выполняется вход..."
-                : "Войти"}
+                ? "Отправка..."
+                : "Отправить ссылку"}
 
               {!loading && (
                 <ArrowRight size={18} />
@@ -144,12 +112,8 @@ function Login() {
           </form>
 
           <div className="auth-footer">
-            <span>
-              У вас ещё нет аккаунта?
-            </span>
-
-            <Link to="/register">
-              Создать аккаунт
+            <Link to="/login">
+              Вернуться к входу
             </Link>
           </div>
         </div>
@@ -158,4 +122,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default ForgotPassword;
