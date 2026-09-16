@@ -12,9 +12,12 @@ from jobmatcher.models.user import User
 
 password_hash = PasswordHash.recommended()
 
-JWT_SECRET_KEY = os.getenv(
-    "JWT_SECRET_KEY",
-    "change-this-secret-key",
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+if not JWT_SECRET_KEY:
+    raise RuntimeError(
+        "JWT_SECRET_KEY is not configured. "
+        "Create a .env file and define JWT_SECRET_KEY."
 )
 
 JWT_ALGORITHM = os.getenv(

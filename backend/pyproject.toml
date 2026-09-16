@@ -10,6 +10,7 @@ requires-python = ">=3.13"
 
 dependencies = [
     "fastapi>=0.141.1",
+    "aiofiles>=25.1.0",
     "uvicorn>=0.52.1",
     "sqlalchemy>=2.0.51",
     "pymysql>=1.2.0",
