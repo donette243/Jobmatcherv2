@@ -9,21 +9,21 @@ function JobCard({ job }) {
   const title =
     job?.title ||
     job?.name ||
-    "Poste sans titre";
+    "Вакансия без названия";
 
   const company =
     job?.company ||
     job?.company_name ||
-    "Entreprise";
+    "Компания не указана";
 
   const location =
     job?.location ||
     job?.city ||
-    "Localisation non précisée";
+    "Местоположение не указано";
 
   const description =
     job?.description ||
-    "Aucune description disponible.";
+    "Описание вакансии отсутствует.";
 
   const url =
     job?.url ||
@@ -46,7 +46,7 @@ function JobCard({ job }) {
         {score !== null && (
           <div className="job-match-score">
             {Math.round(Number(score))}%
-            <span>match</span>
+            <span>совпадение</span>
           </div>
         )}
       </div>
@@ -68,7 +68,7 @@ function JobCard({ job }) {
 
         <p>
           {description.length > 180
-            ? '${description.slice(0, 180)}...'
+            ? `${description.slice(0, 180)}...`
             : description}
         </p>
       </div>
@@ -81,12 +81,12 @@ function JobCard({ job }) {
             rel="noopener noreferrer"
             className="job-link"
           >
-            Voir l'offre
+            Подробнее
             <ArrowUpRight size={17} />
           </a>
         ) : (
           <span className="job-link disabled">
-            Détails indisponibles
+            Демонстрационная вакансия
           </span>
         )}
       </div>

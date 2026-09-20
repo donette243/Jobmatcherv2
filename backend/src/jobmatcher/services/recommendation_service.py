@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
+
 from jobmatcher.models.job import Job
 from jobmatcher.models.profile import Profile
 from jobmatcher.services.matching_service import (
-    # calculate_salary_score,
     calculate_match_score,
 )
 
@@ -11,7 +11,6 @@ def get_recommendations(
     db: Session,
     profile_id: int,
 ):
-
     profile = (
         db.query(Profile)
         .filter(Profile.id == profile_id)
@@ -21,22 +20,11 @@ def get_recommendations(
     if not profile:
         return []
 
-    profile_skills = [
-        skill.name
-        for skill in profile.skills
-    ]
-
     jobs = db.query(Job).all()
 
     recommendations = []
 
     for job in jobs:
-
-        job_skills = [
-            skill.name
-            for skill in job.skills
-        ]
-
         final_score = calculate_match_score(
             profile,
             job,
@@ -48,8 +36,16 @@ def get_recommendations(
                 "title": job.title,
                 "company": job.company,
                 "location": job.location,
+                "description": job.description,
+                "salary_min": job.salary_min,
+                "salary_max": job.salary_max,
+                "remote": job.remote,
                 "score": final_score,
                 "url": job.url,
+                "skills": [
+                    skill.name
+                    for skill in job.skills
+                ],
             }
         )
 
