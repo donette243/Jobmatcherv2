@@ -1,26 +1,15 @@
-import os
 import smtplib
 from email.message import EmailMessage
 
-
-SMTP_HOST = os.getenv("SMTP_HOST", "localhost")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "1025"))
-
-SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
-
-SMTP_FROM = os.getenv(
-    "SMTP_FROM",
-    "jobmatcher@example.com",
-)
-
-SMTP_USE_TLS = (
-    os.getenv("SMTP_USE_TLS", "false").lower() == "true"
-)
-
-FRONTEND_URL = os.getenv(
-    "FRONTEND_URL",
-    "http://localhost:5173",
+from jobmatcher.config import (
+    FRONTEND_URL,
+    RESET_TOKEN_EXPIRE_MINUTES,
+    SMTP_FROM,
+    SMTP_HOST,
+    SMTP_PASSWORD,
+    SMTP_PORT,
+    SMTP_USER,
+    SMTP_USE_TLS,
 )
 
 
@@ -29,15 +18,12 @@ def send_password_reset_email(
     token: str,
 ) -> None:
     reset_link = (
-        f"{FRONTEND_URL}/reset-password?token={token}"
+        f"{FRONTEND_URL}/reset-password"
+        f"?token={token}"
     )
 
     message = EmailMessage()
-
-    message["Subject"] = (
-        "Восстановление пароля — JobMatcher"
-    )
-
+    message["Subject"] = "Восстановление пароля — JobMatcher"
     message["From"] = SMTP_FROM
     message["To"] = recipient_email
 
@@ -50,7 +36,7 @@ def send_password_reset_email(
 
 {reset_link}
 
-Ссылка действительна в течение 30 минут.
+Ссылка действительна в течение {RESET_TOKEN_EXPIRE_MINUTES} минут.
 
 Если вы не запрашивали восстановление пароля, просто проигнорируйте это письмо.
 
@@ -63,7 +49,6 @@ def send_password_reset_email(
         SMTP_HOST,
         SMTP_PORT,
     ) as server:
-
         if SMTP_USE_TLS:
             server.starttls()
 

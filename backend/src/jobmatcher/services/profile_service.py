@@ -1,16 +1,16 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
 from jobmatcher.models.preference import Preference
 from jobmatcher.models.profile import Profile
 from jobmatcher.models.skill import Skill
-from jobmatcher.schemas.user import UserRead
+from jobmatcher.models.user import User
 
 
 def get_profile(
     db: Session,
     user_id: int,
 ) -> Profile | None:
-
     statement = select(Profile).where(
         Profile.user_id == user_id
     )
@@ -20,15 +20,14 @@ def get_profile(
 
 def create_or_update_profile(
     db: Session,
-    user: UserRead,
+    user: User,
     name: str | None,
     experience_years: float | None,
     languages: list[str],
     education: list[str],
     desired_positions: list[str],
-    skills: list[str],
+    skills: list[str] | None = None,
 ) -> Profile:
-
     profile = get_profile(
         db,
         user.id,
@@ -47,31 +46,31 @@ def create_or_update_profile(
         profile.name = name
         profile.experience_years = experience_years
 
-    profile.skills.clear()
+    if skills is not None:
+        profile.skills.clear()
 
-    normalized_skills = {
-        skill.strip().lower()
-        for skill in skills
-        if skill.strip()
-    }
+        normalized_skills = {
+            skill.strip().lower()
+            for skill in skills
+            if skill.strip()
+        }
 
-    for skill_name in normalized_skills:
-
-        statement = select(Skill).where(
-            Skill.name == skill_name
-        )
-
-        skill = db.scalar(statement)
-
-        if skill is None:
-            skill = Skill(
-                name=skill_name
+        for skill_name in normalized_skills:
+            statement = select(Skill).where(
+                Skill.name == skill_name
             )
 
-            db.add(skill)
-            db.flush()
+            skill = db.scalar(statement)
 
-        profile.skills.append(skill)
+            if skill is None:
+                skill = Skill(
+                    name=skill_name
+                )
+
+                db.add(skill)
+                db.flush()
+
+            profile.skills.append(skill)
 
     db.commit()
     db.refresh(profile)
@@ -84,7 +83,6 @@ def set_preference(
     profile: Profile,
     data: dict,
 ) -> Preference:
-
     preference = profile.preference
 
     if preference is None:

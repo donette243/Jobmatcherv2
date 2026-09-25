@@ -1,20 +1,24 @@
+from jobmatcher.models.user import User
 from jobmatcher.services.cv_profile_service import process_cv
-from jobmatcher.schemas.user import UserRead
-
-
 def test_process_cv(db, cv_file):
-
-    user = UserRead(
-        id=1,
+    user = User(
         email="donet@example.com",
-        name="Donet",
-        experience_years=2,
+        password_hash="test-password-hash",
     )
 
-    result = process_cv(
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    profile, parsed = process_cv(
         db=db,
         path=str(cv_file),
-        user=user
+        user=user,
     )
 
-    assert result is not None
+    assert profile is not None
+    assert profile.id is not None
+    assert profile.user_id == user.id
+    assert parsed is not None
+    assert isinstance(parsed, str)
+    assert len(parsed.strip()) > 0

@@ -1,21 +1,24 @@
 from pathlib import Path
+
 from sqlalchemy.orm import Session
-from jobmatcher.schemas.user import UserRead
+
+from jobmatcher.models.user import User
 from jobmatcher.services.cv_parser import parse_cv
+from jobmatcher.services.cv_validator import validate_cv
+from jobmatcher.services.profile_extractor import extract_profile
 from jobmatcher.services.profile_service import (
     create_or_update_profile,
 )
-from jobmatcher.services.profile_extractor import extract_profile
-from jobmatcher.schemas.profile import ProfileExtract
 
 
 def process_cv(
     db: Session,
-    user: UserRead,
+    user: User,
     path: str | Path,
 ):
-
     parsed = parse_cv(path)
+
+    validate_cv(parsed)
 
     profile_data = extract_profile(parsed)
 

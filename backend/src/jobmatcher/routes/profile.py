@@ -1,6 +1,8 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from jobmatcher.auth.dependencies import get_current_user
 from jobmatcher.database.dependencies import get_db
 from jobmatcher.models.user import User
@@ -69,7 +71,7 @@ def update_profile(
         languages=[],
         education=[],
         desired_positions=[],
-        skills=[],
+        skills=None,
     )
 
     if data.preference is not None:

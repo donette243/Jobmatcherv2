@@ -1,5 +1,6 @@
 import uuid
 from pathlib import Path
+
 import aiofiles
 from fastapi import (
     APIRouter,
@@ -10,10 +11,12 @@ from fastapi import (
     UploadFile,
 )
 from sqlalchemy.orm import Session
+
 from jobmatcher.auth.dependencies import get_current_user
-from jobmatcher.database.database import SessionLocal
+from jobmatcher.database.dependencies import get_db
 from jobmatcher.models.user import User
 from jobmatcher.services.cv_profile_service import process_cv
+
 
 router = APIRouter(
     prefix="/cv",
@@ -23,9 +26,15 @@ router = APIRouter(
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-ALLOWED_EXTENSIONS = {
-    ".pdf",
-    ".docx",
+MAX_FILE_SIZE = 10 * 1024 * 1024
+
+ALLOWED_FILE_TYPES = {
+    ".pdf": {
+        "application/pdf",
+    },
+    ".docx": {
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    },
 }
 
 
@@ -35,6 +44,7 @@ async def upload_cv(
     experience_years: float | None = Form(None),
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     if not file.filename:
         raise HTTPException(
@@ -44,33 +54,55 @@ async def upload_cv(
 
     extension = Path(file.filename).suffix.lower()
 
-    if extension not in ALLOWED_EXTENSIONS:
+    if extension not in ALLOWED_FILE_TYPES:
         raise HTTPException(
             status_code=400,
             detail="Only PDF and DOCX files are supported.",
         )
 
+    if file.content_type not in ALLOWED_FILE_TYPES[extension]:
+        raise HTTPException(
+            status_code=400,
+            detail="File content type does not match its extension.",
+        )
+
+    content = await file.read(
+        MAX_FILE_SIZE + 1
+    )
+
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="File is too large. Maximum size is 10 MB.",
+        )
+
     safe_filename = f"{uuid.uuid4()}{extension}"
     file_path = UPLOAD_DIR / safe_filename
 
-    content = await file.read()
-
-    async with aiofiles.open(file_path, "wb") as buffer:
-        await buffer.write(content)
-
-    db: Session = SessionLocal()
-
     try:
-        result = process_cv(
-            db=db,
-            user=current_user,
-            path=str(file_path),
-        )
+        async with aiofiles.open(
+            file_path,
+            "wb",
+        ) as buffer:
+            await buffer.write(content)
+
+        try:
+            profile, _ = process_cv(
+                db=db,
+                user=current_user,
+                path=file_path,
+            )
+        except Exception as exc:
+            raise HTTPException(
+                status_code=400,
+                detail="Unable to process the uploaded CV.",
+            ) from exc
 
         return {
             "message": "CV processed successfully",
-            "profile": result,
+            "profile": profile,
         }
 
     finally:
-        db.close()
+        if file_path.exists():
+            file_path.unlink()

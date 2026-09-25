@@ -29,7 +29,7 @@ function Register() {
       await register(email, password);
 
       setSuccess(
-        "Ваш аккаунт успешно создан."
+        "Ваш аккаунт успешно создан"
       );
 
       setTimeout(() => {
@@ -38,7 +38,7 @@ function Register() {
     } catch (err) {
       setError(
         err.message ||
-          "Не удалось создать аккаунт."
+          "Не удалось создать аккаунт"
       );
     } finally {
       setLoading(false);
@@ -62,7 +62,7 @@ function Register() {
 
             <p>
               Присоединяйтесь к JobMatcher и начинайте находить
-              вакансии, которые соответствуют вашему профилю.
+              вакансии, которые соответствуют вашему профилю
             </p>
           </div>
 
@@ -125,7 +125,7 @@ function Register() {
               </div>
 
               <small>
-                Пароль должен содержать не менее 8 символов.
+                Пароль должен содержать не менее 8 символов
               </small>
             </div>
 

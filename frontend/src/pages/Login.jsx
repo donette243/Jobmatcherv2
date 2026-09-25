@@ -32,7 +32,7 @@ function Login() {
 
       if (!token) {
         throw new Error(
-          "Сервер не вернул токен."
+          "Сервер не вернул токен"
         );
       }
 
@@ -42,7 +42,7 @@ function Login() {
     } catch (err) {
       setError(
         err.message ||
-          "Не удалось войти в систему."
+          "Не удалось войти в систему"
       );
     } finally {
       setLoading(false);
@@ -66,7 +66,7 @@ function Login() {
 
             <p>
               Войдите в систему, чтобы просматривать вакансии
-              и рекомендации.
+              и рекомендации
             </p>
           </div>
 

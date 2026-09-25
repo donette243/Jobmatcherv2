@@ -1,4 +1,3 @@
-import os
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -7,37 +6,16 @@ from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from jobmatcher.config import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    JWT_ALGORITHM,
+    JWT_SECRET_KEY,
+    RESET_TOKEN_EXPIRE_MINUTES,
+)
 from jobmatcher.models.user import User
 
 
 password_hash = PasswordHash.recommended()
-
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-
-if not JWT_SECRET_KEY:
-    raise RuntimeError(
-        "JWT_SECRET_KEY is not configured. "
-        "Create a .env file and define JWT_SECRET_KEY."
-)
-
-JWT_ALGORITHM = os.getenv(
-    "JWT_ALGORITHM",
-    "HS256",
-)
-
-ACCESS_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv(
-        "ACCESS_TOKEN_EXPIRE_MINUTES",
-        "60",
-    )
-)
-
-RESET_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv(
-        "RESET_TOKEN_EXPIRE_MINUTES",
-        "30",
-    )
-)
 
 
 def hash_password(password: str) -> str:

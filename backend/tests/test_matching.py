@@ -1,27 +1,47 @@
-from jobmatcher.schemas.profile import ProfileRead
-from jobmatcher.schemas.job import JobData
+from jobmatcher.models.job import Job
+from jobmatcher.models.profile import Profile
+from jobmatcher.models.skill import Skill
 from jobmatcher.services.matching_service import (
     calculate_match_score,
 )
 
 
 def test_calculate_match_score():
-    profile = ProfileRead(
+    profile = Profile(
         id=1,
         user_id=1,
         name="John Doe",
         experience_years=10,
-        skills=["Python", "JavaScript", "Docker", "Kubernetes"],
-        languages=["English", "Spanish"],
-        education=["Bachelor's degree in Computer Science"],
-        desired_positions=["Software Engineer"],
     )
-    job = JobData(
+
+    profile.skills = [
+        Skill(name="python"),
+        Skill(name="javascript"),
+        Skill(name="docker"),
+        Skill(name="kubernetes"),
+    ]
+
+    job = Job(
+        id=1,
         title="Software Engineer",
         company="Google",
         location="San Francisco, CA",
-        description="We are looking for a software engineer with 10 years of experience in Python and JavaScript",
+        description=(
+            "We are looking for a software engineer "
+            "with experience in Python and JavaScript"
+        ),
         source="LinkedIn",
+        remote=False,
     )
-    score = calculate_match_score(profile, job)
-    print(score)
+
+    job.skills = [
+        Skill(name="python"),
+        Skill(name="javascript"),
+    ]
+
+    score = calculate_match_score(
+        profile,
+        job,
+    )
+
+    assert score == 100.0

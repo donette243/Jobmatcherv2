@@ -23,7 +23,7 @@ function Footer() {
           <span>JobMatcher</span>
 
           <span>
-            Умный поиск работы
+            Личный ИИ-ассистент
           </span>
         </div>
 

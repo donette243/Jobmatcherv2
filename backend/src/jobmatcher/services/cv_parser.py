@@ -1,12 +1,13 @@
 from pathlib import Path
+
 import fitz
 from docx import Document
 
-ALLOWED_EXTENSIONS = {".pdf", ".docx"}
+
 ALLOWED_EXTENSIONS = {".pdf", ".docx"}
 
 
-def parse_pdf(file_path: str) -> str:
+def parse_pdf(file_path: str | Path) -> str:
     """
     Extract text from a PDF file.
     """
@@ -22,7 +23,7 @@ def parse_pdf(file_path: str) -> str:
     return "\n".join(pages_text).strip()
 
 
-def parse_docx(file_path: str) -> str:
+def parse_docx(file_path: str | Path) -> str:
     """
     Extract text from a DOCX file.
     """
@@ -39,19 +40,18 @@ def parse_docx(file_path: str) -> str:
     return "\n".join(paragraphs).strip()
 
 
-def parse_cv(file_path: str) -> str:
+def parse_cv(file_path: str | Path) -> str:
     """
-    Detect the file extension and extract CV text.
+    Detect the file extension and extract text.
     """
     extension = Path(file_path).suffix.lower()
+
+    if extension not in ALLOWED_EXTENSIONS:
+        raise ValueError(
+            f"Unsupported file format: {extension}"
+        )
 
     if extension == ".pdf":
         return parse_pdf(file_path)
 
-    if extension == ".docx":
-        return parse_docx(file_path)
-
-    raise ValueError(
-        f"Unsupported file format: {extension}"
-    )
-
+    return parse_docx(file_path)

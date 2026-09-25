@@ -29,7 +29,7 @@ function CV() {
     ];
 
     if (!allowedTypes.includes(selectedFile.type)) {
-      setError("Выберите файл в формате PDF или DOCX.");
+      setError("Выберите файл в формате PDF или DOCX");
       return;
     }
 
@@ -38,7 +38,7 @@ function CV() {
 
   const handleUpload = async () => {
     if (!file) {
-      setError("Выберите своё резюме.");
+      setError("Выберите своё резюме");
       return;
     }
 
@@ -49,10 +49,10 @@ function CV() {
     try {
       await uploadCV(file);
 
-      setMessage("Ваше резюме успешно загружено.");
+      setMessage("Ваше резюме успешно загружено");
     } catch (err) {
       setError(
-        err.message || "Не удалось загрузить резюме."
+        err.message || "Не удалось загрузить резюме"
       );
     } finally {
       setLoading(false);
@@ -73,7 +73,7 @@ function CV() {
 
             <p>
               Загрузите резюме, чтобы JobMatcher мог определить
-              ваши навыки и сформировать профессиональный профиль.
+              ваши навыки и сформировать профессиональный профиль
             </p>
           </div>
         </section>
