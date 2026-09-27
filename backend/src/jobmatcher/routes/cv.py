@@ -16,6 +16,7 @@ from jobmatcher.auth.dependencies import get_current_user
 from jobmatcher.database.dependencies import get_db
 from jobmatcher.models.user import User
 from jobmatcher.services.cv_profile_service import process_cv
+from jobmatcher.services.cv_validator import InvalidCVError
 
 
 router = APIRouter(
@@ -92,6 +93,11 @@ async def upload_cv(
                 user=current_user,
                 path=file_path,
             )
+        except InvalidCVError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=str(exc),
+            ) from exc
         except Exception as exc:
             raise HTTPException(
                 status_code=400,

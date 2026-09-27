@@ -1,7 +1,5 @@
 from jobmatcher.models.job import Job
 from jobmatcher.models.profile import Profile
-
-
 def calculate_skill_match(
     profile: Profile,
     job: Job,
@@ -33,13 +31,6 @@ def calculate_skill_match(
         / len(job_skills)
         * 100
     )
-
-
-def calculate_experience_match(
-    profile: Profile,
-    job: Job,
-) -> float:
-    return 100.0
 
 
 def calculate_location_match(
@@ -107,11 +98,6 @@ def calculate_match_score(
         job,
     )
 
-    experience_score = calculate_experience_match(
-        profile,
-        job,
-    )
-
     location_score = calculate_location_match(
         profile,
         job,
@@ -123,10 +109,9 @@ def calculate_match_score(
     )
 
     score = (
-        skill_score * 0.60
-        + experience_score * 0.20
-        + location_score * 0.10
-        + remote_score * 0.10
+        skill_score * 0.75
+        + location_score * 0.125
+        + remote_score * 0.125
     )
 
     return round(

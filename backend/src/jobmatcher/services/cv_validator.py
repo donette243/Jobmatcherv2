@@ -1,6 +1,10 @@
 import re
 
 
+class InvalidCVError(ValueError):
+    pass
+
+
 CV_SECTION_KEYWORDS = {
     "experience",
     "work experience",
@@ -109,6 +113,6 @@ def is_likely_cv(text: str) -> bool:
 
 def validate_cv(text: str) -> None:
     if not is_likely_cv(text):
-        raise ValueError(
-            "The uploaded document does not appear to be a CV."
+        raise InvalidCVError(
+            "Загруженный документ не распознан как резюме"
         )
